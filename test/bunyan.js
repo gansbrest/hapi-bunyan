@@ -54,17 +54,6 @@ lab.experiment('bunyan', function() {
     });
   });
 
-  lab.test('logger requirement', function(done) {
-    var server = new hapi.Server();
-    server.connection();
-
-    server.register({ register: require('../lib') }, function(err) {
-      expect(err).to.exist();
-
-      done();
-    });
-  });
-
   lab.test('log event', function(done) {
     var logger = make();
     var server = new hapi.Server();
@@ -205,6 +194,38 @@ lab.experiment('bunyan', function() {
       expect(err).not.to.exist();
 
       server.inject('/', function() {
+        done();
+      });
+    });
+  });
+
+  lab.test('handle events exclusion', function(done) {
+    var logger = make();
+    var server = new hapi.Server();
+    server.connection();
+
+    server.route({
+      method: 'GET',
+      path: '/',
+      handler: function(request, reply) {
+        request.connection.emit('request-internal', request, null, true);
+
+        reply({ hello: 'world' });
+      },
+    });
+
+    server.register({
+      register: require('../lib'),
+      options: { logger: logger, excludeEvents: ['request-internal'] },
+    }, function(err) {
+      expect(err).not.to.exist();
+
+
+      server.inject('/', function() {
+        var records = logger.buffer.records;
+
+        expect(records).to.be.empty();
+
         done();
       });
     });

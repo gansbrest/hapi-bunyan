@@ -13,6 +13,7 @@ Options
  * mergeData (Boolean, default: false): when the event data is an object merge it into the log data.
  * includeTags (Boolean, default: false): include tags in log event.
  * joinTags (String, optional): join tags using the specified character.
+ * excludeEvents (Array, optional): list of Hapi events to exclude from logging. Currently supported events are: log, request, request-internal, request-error
 
 ## Example
 
