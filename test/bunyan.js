@@ -208,7 +208,12 @@ lab.experiment('bunyan', function() {
       method: 'GET',
       path: '/',
       handler: function(request, reply) {
-        request.connection.emit('request-internal', request, null, true);
+        var tags = {};
+
+        request.connection.emit('request-internal', request, 'int-req', tags);
+        request.connection.emit('log', 'log', tags);
+        request.connection.emit('request', request, 'request', tags);
+        request.connection.emit('request-error', request, tags);
 
         reply({ hello: 'world' });
       },
@@ -216,7 +221,10 @@ lab.experiment('bunyan', function() {
 
     server.register({
       register: require('../lib'),
-      options: { logger: logger, excludeEvents: ['request-internal'] },
+      options: {
+        logger: logger,
+        skipUndefined: false,
+        excludeEvents: ['request-internal', 'log', 'request', 'request-error'] }
     }, function(err) {
       expect(err).not.to.exist();
 
