@@ -220,7 +220,6 @@ lab.experiment('bunyan', function() {
     }, function(err) {
       expect(err).not.to.exist();
 
-
       server.inject('/', function() {
         var records = logger.buffer.records;
 
